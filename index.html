@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Semáforo de Vínculos — ESI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #f8f7fc 0%, #f3f6fb 50%, #fdf8f6 100%);
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-shadow {
+      box-shadow: 0 10px 30px -12px rgba(71, 85, 105, 0.12), 0 2px 6px -2px rgba(71, 85, 105, 0.06);
+    }
+    .fade-in {
+      animation: fadeIn 0.22s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .option-btn {
+      transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .option-btn:active {
+      transform: scale(0.985);
+    }
+  </style>
+</head>
+<body class="min-h-[100dvh] flex flex-col">
+
+  <!-- Barra superior compacta mobile-first -->
+  <header class="w-full px-4 py-3 sm:px-6 flex items-center justify-between max-w-4xl mx-auto">
+    <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-1 bg-white px-2.5 py-1.5 rounded-full border border-slate-200/80 shadow-sm" aria-hidden="true">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+      </div>
+      <span class="font-semibold text-slate-800 text-sm sm:text-base tracking-tight">Semáforo de Vínculos</span>
+    </div>
+
+    <div id="mode-switcher-container" class="flex items-center gap-2">
+      <button id="btn-toggle-mode" type="button" class="text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition shadow-sm">
+        Panel Docente
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenedor principal -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-3.5 sm:px-4 pb-8 pt-1 flex flex-col justify-center">
+
+    <!-- ==================== VISTA ESTUDIANTE ==================== -->
+    <section id="view-student" class="w-full max-w-lg mx-auto">
+
+      <!-- Pantalla 1: Bienvenida -->
+      <div id="student-welcome" class="bg-white/95 backdrop-blur rounded-3xl p-5 sm:p-8 border border-slate-200/70 card-shadow fade-in">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-semibold mb-3">
+          <span>Educación Sexual Integral (ESI)</span>
+        </div>
+        <h1 class="text-xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-snug mb-2.5">
+          ¿Cómo evaluás estas situaciones?
+        </h1>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-5">
+          Vas a responder <strong>10 situaciones</strong> sobre vínculos. En cada una elegí un color del semáforo y, si querés, agregá brevemente por qué o qué harías en ese lugar.
+        </p>
+
+        <!-- Leyenda rápida del semáforo -->
+        <div class="grid grid-cols-1 gap-2 mb-5">
+          <div class="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200/70">
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 shrink-0 shadow-sm"></span>
+            <p class="text-xs sm:text-sm text-emerald-900"><strong>Verde:</strong> Vínculo sano, respetuoso y cuidado.</p>
+          </div>
+          <div class="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-amber-50/80 border border-amber-200/70">
+            <span class="w-3.5 h-3.5 rounded-full bg-amber-400 shrink-0 shadow-sm"></span>
+            <p class="text-xs sm:text-sm text-amber-900"><strong>Amarillo:</strong> Más o menos, genera dudas o alertas.</p>
+          </div>
+          <div class="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-rose-50/80 border border-rose-200/70">
+            <span class="w-3.5 h-3.5 rounded-full bg-rose-400 shrink-0 shadow-sm"></span>
+            <p class="text-xs sm:text-sm text-rose-900"><strong>Rojo:</strong> Señal de violencia, celos o control.</p>
+          </div>
+        </div>
+
+        <!-- Nombre o apodo -->
+        <div class="mb-4">
+          <label for="input-student-name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+            Tu nombre o apodo (opcional)
+          </label>
+          <input id="input-student-name" type="text" maxlength="40" autocomplete="off" placeholder="Ej: Sofi, Lucas o dejalo vacío para anónimo" class="w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400" />
+        </div>
+
+        <!-- Selector opcional de curso -->
+        <div class="mb-5">
+          <label for="select-course" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+            Curso o grupo (opcional)
+          </label>
+          <select id="select-course" class="w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400">
+            <option value="General">Prefiero no indicar / General</option>
+            <option value="1.° año">1.° año</option>
+            <option value="2.° año">2.° año</option>
+            <option value="3.° año">3.° año</option>
+            <option value="4.° año">4.° año</option>
+            <option value="5.° año">5.° año</option>
+          </select>
+        </div>
+
+        <button id="btn-start-quiz" type="button" class="w-full min-h-[52px] py-3.5 px-6 rounded-2xl bg-slate-900 text-white font-semibold text-base hover:bg-slate-800 active:scale-[0.99] transition shadow-md">
+          Comenzar actividad
+        </button>
+      </div>
+
+      <!-- Pantalla 2: Tarjeta de situación (optimizada para celular) -->
+      <div id="student-quiz" class="hidden bg-white/95 backdrop-blur rounded-3xl p-5 sm:p-7 border border-slate-200/70 card-shadow fade-in">
+        <!-- Progreso -->
+        <div class="flex items-center justify-between gap-2 text-xs font-medium text-slate-500 mb-2">
+          <span id="quiz-counter" class="font-semibold text-slate-700">Situación 1 de 10</span>
+          <div class="flex items-center gap-1.5">
+            <span id="quiz-perspective" class="hidden px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 font-semibold">En tu lugar</span>
+            <span id="quiz-category" class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold">Categoría</span>
+          </div>
+        </div>
+        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+          <div id="quiz-progress-bar" class="h-full bg-violet-400 rounded-full transition-all duration-300" style="width: 10%;"></div>
+        </div>
+
+        <!-- Enunciado de la situación -->
+        <div class="bg-slate-50/90 border border-slate-200/70 rounded-2xl p-4 sm:p-5 mb-4 min-h-[108px] flex items-center">
+          <p id="quiz-situation-text" class="text-[15px] sm:text-lg font-medium text-slate-800 leading-relaxed"></p>
+        </div>
+
+        <!-- Botones del semáforo -->
+        <div class="space-y-2.5 mb-4">
+          <button type="button" data-choice="verde" class="option-btn choice-btn w-full min-h-[58px] text-left px-3.5 py-3 rounded-2xl border-2 border-emerald-200 bg-emerald-50/75 hover:bg-emerald-100/80 flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-full bg-emerald-400 shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm">V</span>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-emerald-950 text-sm sm:text-base leading-tight">Verde — Está bien</div>
+              <div class="text-xs text-emerald-800/80 mt-0.5">Es parte de un vínculo sano y respetuoso</div>
+            </div>
+            <span class="choice-check hidden text-emerald-700 font-bold text-base pr-1" aria-hidden="true">✓</span>
+          </button>
+
+          <button type="button" data-choice="amarillo" class="option-btn choice-btn w-full min-h-[58px] text-left px-3.5 py-3 rounded-2xl border-2 border-amber-200 bg-amber-50/75 hover:bg-amber-100/80 flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-full bg-amber-400 shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm">A</span>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-amber-950 text-sm sm:text-base leading-tight">Amarillo — Más o menos / Dudas</div>
+              <div class="text-xs text-amber-800/80 mt-0.5">Me genera alerta o depende de la situación</div>
+            </div>
+            <span class="choice-check hidden text-amber-700 font-bold text-base pr-1" aria-hidden="true">✓</span>
+          </button>
+
+          <button type="button" data-choice="rojo" class="option-btn choice-btn w-full min-h-[58px] text-left px-3.5 py-3 rounded-2xl border-2 border-rose-200 bg-rose-50/75 hover:bg-rose-100/80 flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-full bg-rose-400 shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm">R</span>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-rose-950 text-sm sm:text-base leading-tight">Rojo — Está mal / Violencia</div>
+              <div class="text-xs text-rose-800/80 mt-0.5">Es una señal de celos, control o maltrato</div>
+            </div>
+            <span class="choice-check hidden text-rose-700 font-bold text-base pr-1" aria-hidden="true">✓</span>
+          </button>
+        </div>
+
+        <!-- Espacio para completar / justificar -->
+        <div class="mb-4">
+          <label for="input-reflection" id="label-reflection" class="block text-xs font-semibold text-slate-600 mb-1.5">
+            ¿Por qué elegiste este color o qué harías vos? <span class="font-normal text-slate-400">(opcional)</span>
+          </label>
+          <textarea id="input-reflection" rows="2" maxlength="240" placeholder="Escribí brevemente tu opinión o qué harías en esta situación..." class="w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-3.5 py-2.5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 resize-none"></textarea>
+        </div>
+
+        <!-- Navegación inferior mobile-friendly -->
+        <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+          <button id="btn-prev-question" type="button" class="min-h-[46px] text-sm font-medium text-slate-500 hover:text-slate-800 px-3 py-2 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">
+            ← Anterior
+          </button>
+          <button id="btn-next-question" type="button" disabled class="flex-1 sm:flex-none min-h-[46px] px-5 py-2.5 rounded-2xl bg-slate-900 text-white text-sm sm:text-base font-semibold hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition shadow-sm">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+
+      <!-- Pantalla 3: Finalización -->
+      <div id="student-done" class="hidden bg-white/95 backdrop-blur rounded-3xl p-6 sm:p-8 border border-slate-200/70 card-shadow fade-in text-center">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center mb-4">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h2 id="done-title" class="text-2xl font-bold text-slate-900 mb-2">¡Respuestas registradas!</h2>
+        <p id="done-sync-status" class="text-sm text-slate-600 mb-6">
+          Tus respuestas se guardaron para trabajar los resultados en clase.
+        </p>
+
+        <!-- Resumen de elecciones del estudiante -->
+        <div class="grid grid-cols-3 gap-3 mb-6">
+          <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200/70">
+            <div id="summary-verde" class="text-2xl font-bold text-emerald-700">0</div>
+            <div class="text-xs font-medium text-emerald-800">Verde</div>
+          </div>
+          <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200/70">
+            <div id="summary-amarillo" class="text-2xl font-bold text-amber-700">0</div>
+            <div class="text-xs font-medium text-amber-800">Amarillo</div>
+          </div>
+          <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200/70">
+            <div id="summary-rojo" class="text-2xl font-bold text-rose-700">0</div>
+            <div class="text-xs font-medium text-rose-800">Rojo</div>
+          </div>
+        </div>
+
+        <button id="btn-restart-quiz" type="button" class="w-full min-h-[48px] py-3 px-5 rounded-2xl bg-slate-100 text-slate-800 font-semibold text-sm hover:bg-slate-200 transition">
+          Responder nuevamente
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== PANEL DOCENTE ==================== -->
+    <section id="view-teacher" class="hidden w-full fade-in">
+      <div class="bg-white/95 backdrop-blur rounded-3xl p-5 sm:p-7 border border-slate-200/70 card-shadow">
+
+        <!-- Cabecera y pestañas -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Panel Docente</h1>
+              <button id="btn-lock-teacher" type="button" class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                Bloquear
+              </button>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Análisis de respuestas, reflexiones escritas, código QR y conexión con Google Sheets.</p>
+          </div>
+          <div class="flex bg-slate-100 p-1 rounded-2xl self-start sm:self-auto">
+            <button type="button" data-tab="results" class="teacher-tab px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-900 shadow-sm">
+              Resultados
+            </button>
+            <button type="button" data-tab="qr" class="teacher-tab px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900">
+              Código QR
+            </button>
+            <button type="button" data-tab="sheets" class="teacher-tab px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900">
+              Google Sheets
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 1: RESULTADOS -->
+        <div id="tab-results" class="pt-6 space-y-6">
+          <!-- Controles de filtro y acciones -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <label for="filter-course" class="text-xs font-semibold text-slate-600">Curso:</label>
+              <select id="filter-course" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300">
+                <option value="Todos">Todos los cursos</option>
+                <option value="General">General</option>
+                <option value="1.° año">1.° año</option>
+                <option value="2.° año">2.° año</option>
+                <option value="3.° año">3.° año</option>
+                <option value="4.° año">4.° año</option>
+                <option value="5.° año">5.° año</option>
+              </select>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btn-load-demo" type="button" class="px-3 py-1.5 rounded-xl bg-violet-50 text-violet-700 border border-violet-200 text-xs font-semibold hover:bg-violet-100 transition">
+                Cargar datos de prueba
+              </button>
+              <button id="btn-export-csv" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition">
+                Exportar CSV
+              </button>
+              <button id="btn-clear-data" type="button" class="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold hover:bg-rose-100 transition">
+                Limpiar datos
+              </button>
+            </div>
+          </div>
+
+          <!-- KPIs -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70">
+              <div class="text-xs font-medium text-slate-500">Participaciones</div>
+              <div id="kpi-total-sessions" class="text-2xl font-bold text-slate-900 mt-1">0</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/70">
+              <div class="text-xs font-medium text-emerald-800">Respuestas Verde</div>
+              <div id="kpi-pct-verde" class="text-2xl font-bold text-emerald-700 mt-1">0%</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/70">
+              <div class="text-xs font-medium text-amber-800">Respuestas Amarillo</div>
+              <div id="kpi-pct-amarillo" class="text-2xl font-bold text-amber-700 mt-1">0%</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-rose-50/80 border border-rose-200/70">
+              <div class="text-xs font-medium text-rose-800">Respuestas Rojo</div>
+              <div id="kpi-pct-rojo" class="text-2xl font-bold text-rose-700 mt-1">0%</div>
+            </div>
+          </div>
+
+          <!-- Gráfico de frecuencias por situación -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/70">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-sm font-semibold text-slate-800">Distribución de respuestas por situación (banco de 16)</h2>
+              <span class="text-xs text-slate-500">Frecuencias absolutas</span>
+            </div>
+            <div id="chart-empty-state" class="py-12 text-center text-sm text-slate-500">
+              Todavía no hay respuestas registradas en este dispositivo. Podés responder en la Vista Estudiante o tocar <strong>"Cargar datos de prueba"</strong> para ver el gráfico.
+            </div>
+            <div id="chart-wrapper" class="hidden relative h-96 w-full">
+              <canvas id="results-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Tabla resumen por situación -->
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/70">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-50 text-slate-600 border-b border-slate-200/70">
+                <tr>
+                  <th class="py-3 px-4 font-semibold">Situación</th>
+                  <th class="py-3 px-3 font-semibold text-center text-emerald-700">Verde</th>
+                  <th class="py-3 px-3 font-semibold text-center text-amber-700">Amarillo</th>
+                  <th class="py-3 px-3 font-semibold text-center text-rose-700">Rojo</th>
+                </tr>
+              </thead>
+              <tbody id="results-table-body" class="divide-y divide-slate-100 bg-white"></tbody>
+            </table>
+          </div>
+
+          <!-- Reflexiones escritas por estudiantes -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-slate-800">Reflexiones y comentarios escritos</h2>
+              <span id="comments-count-badge" class="text-xs text-slate-500">0 comentarios</span>
+            </div>
+            <div id="comments-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+
+        <!-- TAB 2: CÓDIGO QR -->
+        <div id="tab-qr" class="hidden pt-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div class="space-y-4">
+              <div>
+                <h2 class="text-base font-bold text-slate-900 mb-1">Generador de QR para el aula</h2>
+                <p class="text-xs sm:text-sm text-slate-600">
+                  Una vez que publiques este archivo en <strong>GitHub Pages</strong>, pegá la dirección web acá para generar el código QR listo para proyectar o imprimir.
+                </p>
+              </div>
+
+              <div>
+                <label for="input-qr-url" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+                  URL pública de la aplicación
+                </label>
+                <input id="input-qr-url" type="url" placeholder="https://tu-usuario.github.io/semaforo-esi/" value="https://tu-usuario.github.io/semaforo-esi/" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300" />
+              </div>
+
+              <label class="flex items-start gap-2.5 cursor-pointer">
+                <input id="chk-student-only" type="checkbox" checked class="mt-0.5 rounded border-slate-300 text-violet-600 focus:ring-violet-400" />
+                <span class="text-xs sm:text-sm text-slate-700">
+                  <strong>Ocultar botón "Panel Docente"</strong> (agrega <code>?modo=estudiante</code> al enlace para que los chicos solo vean la encuesta).
+                </span>
+              </label>
+
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button id="btn-generate-qr" type="button" class="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition">
+                  Actualizar QR
+                </button>
+                <button id="btn-download-qr" type="button" class="px-4 py-2.5 rounded-xl bg-violet-50 text-violet-800 border border-violet-200 text-xs sm:text-sm font-semibold hover:bg-violet-100 transition">
+                  Descargar PNG
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center p-6 rounded-3xl bg-slate-50 border border-slate-200/80">
+              <div id="qrcode-container" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/70"></div>
+              <p id="qr-url-preview" class="mt-3 text-xs text-slate-500 break-all text-center max-w-xs"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: CONEXIÓN GOOGLE SHEETS -->
+        <div id="tab-sheets" class="hidden pt-6 space-y-5">
+          <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70 text-xs sm:text-sm text-indigo-950">
+            <strong>Estado actual:</strong> <span id="sheets-connection-badge">Modo local (sin URL de Google Apps Script configurada).</span>
+            Para guardar las nuevas columnas (<strong>Nombre o Apodo</strong> y <strong>Comentario</strong>), actualizá el código en Apps Script y publicá una <strong>Nueva versión</strong> en <em>Implementar &gt; Administrar implementaciones</em>.
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="text-sm font-bold text-slate-900">Código actualizado para Google Apps Script (Code.gs)</h2>
+              <button id="btn-copy-gas" type="button" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition">
+                Copiar código
+              </button>
+            </div>
+            <pre id="gas-code-block" class="p-4 rounded-2xl bg-slate-900 text-slate-100 text-xs overflow-x-auto leading-relaxed"><code>function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'Fecha y Hora',
+        'ID Sesion',
+        'Nombre o Apodo',
+        'Curso',
+        'Nro Situacion',
+        'Categoria',
+        'Situacion',
+        'Respuesta',
+        'Comentario'
+      ]);
+    }
+
+    var timestamp = new Date();
+    var rows = data.respuestas.map(function(item) {
+      return [
+        timestamp,
+        data.sessionId,
+        data.nombre || 'Anónimo',
+        data.curso || 'General',
+        item.id,
+        item.categoria,
+        item.texto,
+        item.eleccion,
+        item.comentario || ''
+      ];
+    });
+
+    if (rows.length > 0) {
+      sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'ok', filas: rows.length }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</code></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast de notificaciones -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 z-50"></div>
+
+  <!-- Modal de contraseña para Panel Docente -->
+  <div id="modal-teacher-auth" class="hidden fixed inset-0 bg-slate-900/45 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full card-shadow border border-slate-200 fade-in">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-slate-900">Acceso Panel Docente</h3>
+        <button id="btn-close-auth" type="button" class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2 py-0.5" aria-label="Cerrar">×</button>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 mb-4">Ingresá la contraseña docente para ver resultados, generar el QR o configurar Google Sheets.</p>
+      <div class="relative mb-2">
+        <input id="input-teacher-pass" type="password" autocomplete="current-password" placeholder="Contraseña" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 pr-16 text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400" />
+        <button id="btn-toggle-pass-vis" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500 hover:text-slate-800 px-2 py-1">
+          Ver
+        </button>
+      </div>
+      <p id="auth-error-msg" class="hidden text-xs font-medium text-rose-600 mb-3">Contraseña incorrecta. Intentá nuevamente.</p>
+      <div class="flex justify-end gap-2 mt-4">
+        <button id="btn-cancel-auth" type="button" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200">Cancelar</button>
+        <button id="btn-submit-auth" type="button" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">Ingresar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación para limpiar datos -->
+  <div id="modal-confirm-clear" class="hidden fixed inset-0 bg-slate-900/45 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full card-shadow border border-slate-200">
+      <h3 class="text-lg font-bold text-slate-900 mb-2">¿Limpiar datos locales?</h3>
+      <p class="text-sm text-slate-600 mb-5">Se borrarán las respuestas almacenadas en este navegador. Los datos ya enviados a Google Sheets no se modifican.</p>
+      <div class="flex justify-end gap-2">
+        <button id="btn-cancel-clear" type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200">Cancelar</button>
+        <button id="btn-confirm-clear" type="button" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700">Sí, limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURACIÓN GENERAL
+    // =========================================================================
+    // Pegá aquí la URL de tu aplicación web de Google Apps Script cuando la publiques:
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzl0AqS6t_ThDogEYmdCfFmUtNZGpISSwPOI2rMgnRLoc_2JIHYJ5Mc26B0MdVaXeRJw/exec';
+    const TEACHER_PASSWORD = 'Onna@0503';
+    const QUESTIONS_PER_SESSION = 10;
+
+    // =========================================================================
+    // BANCO DE 16 SITUACIONES DE ESI (SE SORTEAN 10 POR ESTUDIANTE)
+    // =========================================================================
+    const SITUATIONS_BANK = [
+      {
+        id: 1,
+        categoria: 'Privacidad digital',
+        enTuLugar: true,
+        texto: 'Imaginá que tu pareja te pide las contraseñas de tus redes y revisa tus chats para "quedarse tranquila/o", diciendo que si no ocultás nada no debería molestarte.'
+      },
+      {
+        id: 2,
+        categoria: 'Autonomía',
+        enTuLugar: true,
+        texto: 'Le contás a tu pareja que el fin de semana vas a salir a merendar con tus amistades del colegio y te responde que le alegra mucho que disfrutes tu tiempo libre.'
+      },
+      {
+        id: 3,
+        categoria: 'Celos y vestimenta',
+        enTuLugar: true,
+        texto: 'Antes de salir a una fiesta, tu pareja te mira la ropa y te insiste en que te cambies "para evitar miradas de otras personas".'
+      },
+      {
+        id: 4,
+        categoria: 'Comunicación',
+        enTuLugar: false,
+        texto: 'Dos personas tienen una discusión por un malentendido, pero acuerdan tomarse unos minutos para calmarse y luego hablarlo con respeto, sin gritos ni insultos.'
+      },
+      {
+        id: 5,
+        categoria: 'Control de tiempos',
+        enTuLugar: true,
+        texto: 'Te ponés nervioso/a cada vez que tardás más de diez minutos en responder un mensaje porque sabés que la otra persona se va a enojar y te va a reclamar dónde estabas.'
+      },
+      {
+        id: 6,
+        categoria: 'Límites y consentimiento',
+        enTuLugar: true,
+        texto: 'No tenés ganas de hacer un plan o de tener una muestra de afecto en ese momento; se lo decís con claridad y la otra persona lo acepta sin presionarte ni cambiar de humor.'
+      },
+      {
+        id: 7,
+        categoria: 'Aislamiento sutil',
+        enTuLugar: true,
+        texto: 'Cada vez que hacés planes con tu familia o amistades, tu pareja se muestra distante o te hace sentir culpable diciendo que "siempre preferís estar con otros".'
+      },
+      {
+        id: 8,
+        categoria: 'Violencia digital',
+        enTuLugar: false,
+        texto: 'Después de una pelea fuerte, alguien amenaza a su pareja con publicar capturas de conversaciones privadas o fotos íntimas si decide terminar la relación.'
+      },
+      {
+        id: 9,
+        categoria: 'Celos en redes',
+        enTuLugar: true,
+        texto: 'Subís una foto a tus redes y tu pareja te reclama por qué le diste "me gusta" a la publicación de un compañero o compañera, exigiéndote que dejes de seguirlo/a.'
+      },
+      {
+        id: 10,
+        categoria: 'Escucha y apoyo',
+        enTuLugar: true,
+        texto: 'Te sentís mal por un problema personal y se lo contás a tu pareja; te escucha sin juzgarte y te pregunta de qué manera puede acompañarte.'
+      },
+      {
+        id: 11,
+        categoria: 'Control de ubicación',
+        enTuLugar: true,
+        texto: 'Tu pareja te pide que le mandes tu ubicación en tiempo real cada vez que salís de tu casa "solo para cuidarte", aunque vos le dijiste que te incomoda.'
+      },
+      {
+        id: 12,
+        categoria: 'Burla en grupo',
+        enTuLugar: true,
+        texto: 'En una reunión con amigos, tu pareja hace chistes sobre tu cuerpo o tu forma de hablar; cuando le decís que te dolió, te responde que "sos demasiado sensible".'
+      },
+      {
+        id: 13,
+        categoria: 'Espacio personal',
+        enTuLugar: true,
+        texto: 'Le decís a la persona con la que estás saliendo que necesitás un fin de semana para estudiar o descansar solo/a, y respeta tu espacio sin reproches.'
+      },
+      {
+        id: 14,
+        categoria: 'Presión constante',
+        enTuLugar: true,
+        texto: 'Salís de clase o de entrenar y al agarrar el celular tenés veinte mensajes y llamadas perdidas reclamándote por qué no atendiste al instante.'
+      },
+      {
+        id: 15,
+        categoria: 'Desconfianza',
+        enTuLugar: false,
+        texto: 'Una persona le revisa el celular a escondidas a su pareja mientras está distraída para ver con quién habla y qué fotos guarda.'
+      },
+      {
+        id: 16,
+        categoria: 'Acuerdos claros',
+        enTuLugar: false,
+        texto: 'Antes de empezar un vínculo, dos personas charlan abiertamente sobre qué espera cada una, qué cosas las hacen sentir bien y qué límites no quieren cruzar.'
+      }
+    ];
+
+    const STORAGE_KEY = 'semaforo_esi_respuestas_v2';
+
+    // Estado en memoria
+    const state = {
+      mode: 'student', // 'student' | 'teacher'
+      teacherAuthenticated: false,
+      currentIndex: 0,
+      studentName: 'Anónimo',
+      selectedCourse: 'General',
+      sessionQuestions: [], // 10 preguntas sorteadas para esta sesión
+      currentAnswers: {}, // { [situationId]: 'verde' | 'amarillo' | 'rojo' }
+      currentComments: {}, // { [situationId]: string }
+      submissions: [],
+      activeTab: 'results',
+      chartInstance: null
+    };
+
+    // Referencias DOM
+    const el = {
+      modeSwitcher: document.getElementById('mode-switcher-container'),
+      btnToggleMode: document.getElementById('btn-toggle-mode'),
+      btnLockTeacher: document.getElementById('btn-lock-teacher'),
+      viewStudent: document.getElementById('view-student'),
+      viewTeacher: document.getElementById('view-teacher'),
+      studentWelcome: document.getElementById('student-welcome'),
+      studentQuiz: document.getElementById('student-quiz'),
+      studentDone: document.getElementById('student-done'),
+      inputStudentName: document.getElementById('input-student-name'),
+      selectCourse: document.getElementById('select-course'),
+      btnStartQuiz: document.getElementById('btn-start-quiz'),
+      quizCounter: document.getElementById('quiz-counter'),
+      quizPerspective: document.getElementById('quiz-perspective'),
+      quizCategory: document.getElementById('quiz-category'),
+      quizProgressBar: document.getElementById('quiz-progress-bar'),
+      quizSituationText: document.getElementById('quiz-situation-text'),
+      inputReflection: document.getElementById('input-reflection'),
+      labelReflection: document.getElementById('label-reflection'),
+      btnPrevQuestion: document.getElementById('btn-prev-question'),
+      btnNextQuestion: document.getElementById('btn-next-question'),
+      doneTitle: document.getElementById('done-title'),
+      doneSyncStatus: document.getElementById('done-sync-status'),
+      summaryVerde: document.getElementById('summary-verde'),
+      summaryAmarillo: document.getElementById('summary-amarillo'),
+      summaryRojo: document.getElementById('summary-rojo'),
+      btnRestartQuiz: document.getElementById('btn-restart-quiz'),
+      filterCourse: document.getElementById('filter-course'),
+      btnLoadDemo: document.getElementById('btn-load-demo'),
+      btnExportCsv: document.getElementById('btn-export-csv'),
+      btnClearData: document.getElementById('btn-clear-data'),
+      kpiTotalSessions: document.getElementById('kpi-total-sessions'),
+      kpiPctVerde: document.getElementById('kpi-pct-verde'),
+      kpiPctAmarillo: document.getElementById('kpi-pct-amarillo'),
+      kpiPctRojo: document.getElementById('kpi-pct-rojo'),
+      chartEmptyState: document.getElementById('chart-empty-state'),
+      chartWrapper: document.getElementById('chart-wrapper'),
+      resultsTableBody: document.getElementById('results-table-body'),
+      commentsCountBadge: document.getElementById('comments-count-badge'),
+      commentsList: document.getElementById('comments-list'),
+      inputQrUrl: document.getElementById('input-qr-url'),
+      chkStudentOnly: document.getElementById('chk-student-only'),
+      btnGenerateQr: document.getElementById('btn-generate-qr'),
+      btnDownloadQr: document.getElementById('btn-download-qr'),
+      qrcodeContainer: document.getElementById('qrcode-container'),
+      qrUrlPreview: document.getElementById('qr-url-preview'),
+      sheetsConnectionBadge: document.getElementById('sheets-connection-badge'),
+      btnCopyGas: document.getElementById('btn-copy-gas'),
+      gasCodeBlock: document.getElementById('gas-code-block'),
+      toast: document.getElementById('toast'),
+      modalTeacherAuth: document.getElementById('modal-teacher-auth'),
+      inputTeacherPass: document.getElementById('input-teacher-pass'),
+      btnTogglePassVis: document.getElementById('btn-toggle-pass-vis'),
+      authErrorMsg: document.getElementById('auth-error-msg'),
+      btnCloseAuth: document.getElementById('btn-close-auth'),
+      btnCancelAuth: document.getElementById('btn-cancel-auth'),
+      btnSubmitAuth: document.getElementById('btn-submit-auth'),
+      modalConfirmClear: document.getElementById('modal-confirm-clear'),
+      btnCancelClear: document.getElementById('btn-cancel-clear'),
+      btnConfirmClear: document.getElementById('btn-confirm-clear')
+    };
+
+    // Utilidades
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function pickSessionQuestions(count) {
+      const pool = [...SITUATIONS_BANK];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = pool[i];
+        pool[i] = pool[j];
+        pool[j] = tmp;
+      }
+      return pool.slice(0, Math.min(count, pool.length));
+    }
+
+    function loadSubmissions() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            state.submissions = parsed;
+          }
+        }
+      } catch (e) {
+        // Mantiene en memoria si localStorage no está disponible
+      }
+    }
+
+    function saveSubmissions() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.submissions));
+      } catch (e) {
+        // Ignorar si el almacenamiento está bloqueado
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      el.toast.textContent = msg;
+      el.toast.classList.remove('opacity-0');
+      el.toast.classList.add('opacity-100');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.toast.classList.remove('opacity-100');
+        el.toast.classList.add('opacity-0');
+      }, 2600);
+    }
+
+    // ==================== FLUJO ESTUDIANTE ====================
+    function startQuiz() {
+      const rawName = (el.inputStudentName.value || '').trim();
+      state.studentName = rawName || 'Anónimo';
+      state.selectedCourse = el.selectCourse.value || 'General';
+      state.sessionQuestions = pickSessionQuestions(QUESTIONS_PER_SESSION);
+      state.currentIndex = 0;
+      state.currentAnswers = {};
+      state.currentComments = {};
+
+      el.studentWelcome.classList.add('hidden');
+      el.studentDone.classList.add('hidden');
+      el.studentQuiz.classList.remove('hidden');
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderQuestion() {
+      const sit = state.sessionQuestions[state.currentIndex];
+      const total = state.sessionQuestions.length;
+      el.quizCounter.textContent = `Situación ${state.currentIndex + 1} de ${total}`;
+      el.quizCategory.textContent = sit.categoria;
+      el.quizPerspective.classList.toggle('hidden', !sit.enTuLugar);
+      el.quizSituationText.textContent = sit.texto;
+      el.quizProgressBar.style.width = `${((state.currentIndex + 1) / total) * 100}%`;
+      el.btnPrevQuestion.disabled = state.currentIndex === 0;
+
+      el.labelReflection.innerHTML = sit.enTuLugar
+        ? 'Si estuvieras en esa situación, ¿qué harías o por qué elegiste ese color? <span class="font-normal text-slate-400">(opcional)</span>'
+        : '¿Por qué elegiste este color? <span class="font-normal text-slate-400">(opcional)</span>';
+
+      el.inputReflection.value = state.currentComments[sit.id] || '';
+
+      const selected = state.currentAnswers[sit.id];
+      document.querySelectorAll('.choice-btn').forEach((btn) => {
+        const choice = btn.getAttribute('data-choice');
+        const check = btn.querySelector('.choice-check');
+        btn.classList.remove('ring-2', 'ring-offset-1', 'ring-emerald-500', 'ring-amber-500', 'ring-rose-500');
+        if (check) check.classList.add('hidden');
+        if (selected === choice) {
+          const ringMap = { verde: 'ring-emerald-500', amarillo: 'ring-amber-500', rojo: 'ring-rose-500' };
+          btn.classList.add('ring-2', 'ring-offset-1', ringMap[choice]);
+          if (check) check.classList.remove('hidden');
+        }
+      });
+
+      const isLast = state.currentIndex === total - 1;
+      el.btnNextQuestion.textContent = isLast ? 'Enviar respuestas ✓' : 'Siguiente →';
+      el.btnNextQuestion.disabled = !selected;
+    }
+
+    function handleChoice(choice) {
+      const sit = state.sessionQuestions[state.currentIndex];
+      state.currentAnswers[sit.id] = choice;
+      renderQuestion();
+    }
+
+    function saveCurrentComment() {
+      const sit = state.sessionQuestions[state.currentIndex];
+      if (sit) {
+        state.currentComments[sit.id] = (el.inputReflection.value || '').trim();
+      }
+    }
+
+    function goNextQuestion() {
+      const sit = state.sessionQuestions[state.currentIndex];
+      if (!state.currentAnswers[sit.id]) {
+        showToast('Elegí un color del semáforo para continuar.');
+        return;
+      }
+      saveCurrentComment();
+      if (state.currentIndex < state.sessionQuestions.length - 1) {
+        state.currentIndex += 1;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function goPrevQuestion() {
+      if (state.currentIndex > 0) {
+        saveCurrentComment();
+        state.currentIndex -= 1;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    async function finishQuiz() {
+      const sessionId = 'SES-' + Date.now().toString(36).toUpperCase();
+      const respuestas = state.sessionQuestions.map((sit) => ({
+        id: sit.id,
+        categoria: sit.categoria,
+        texto: sit.texto,
+        eleccion: state.currentAnswers[sit.id] || 'amarillo',
+        comentario: state.currentComments[sit.id] || ''
+      }));
+
+      const payload = {
+        sessionId,
+        timestamp: new Date().toISOString(),
+        nombre: state.studentName,
+        curso: state.selectedCourse,
+        respuestas
+      };
+
+      state.submissions.push(payload);
+      saveSubmissions();
+
+      const counts = { verde: 0, amarillo: 0, rojo: 0 };
+      respuestas.forEach((r) => {
+        if (counts[r.eleccion] !== undefined) counts[r.eleccion] += 1;
+      });
+      el.summaryVerde.textContent = counts.verde;
+      el.summaryAmarillo.textContent = counts.amarillo;
+      el.summaryRojo.textContent = counts.rojo;
+      el.doneTitle.textContent = state.studentName !== 'Anónimo'
+        ? `¡Gracias, ${state.studentName}!`
+        : '¡Respuestas registradas!';
+
+      el.studentQuiz.classList.add('hidden');
+      el.studentDone.classList.remove('hidden');
+
+      if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.startsWith('https://')) {
+        el.doneSyncStatus.textContent = 'Enviando respuestas a la planilla docente...';
+        try {
+          await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          el.doneSyncStatus.textContent = 'Tus respuestas fueron enviadas a la planilla docente.';
+        } catch (err) {
+          el.doneSyncStatus.textContent = 'Se guardaron localmente en este dispositivo (no se pudo conectar con la planilla en este momento).';
+        }
+      } else {
+        el.doneSyncStatus.textContent = 'Tus respuestas se registraron en este dispositivo (modo demostración).';
+      }
+    }
+
+    function restartQuiz() {
+      el.inputStudentName.value = '';
+      el.studentDone.classList.add('hidden');
+      el.studentWelcome.classList.remove('hidden');
+    }
+
+    // ==================== AUTENTICACIÓN PANEL DOCENTE ====================
+    function openTeacherAuthModal() {
+      el.inputTeacherPass.value = '';
+      el.inputTeacherPass.type = 'password';
+      el.btnTogglePassVis.textContent = 'Ver';
+      el.authErrorMsg.classList.add('hidden');
+      el.modalTeacherAuth.classList.remove('hidden');
+      setTimeout(() => el.inputTeacherPass.focus(), 50);
+    }
+
+    function closeTeacherAuthModal() {
+      el.modalTeacherAuth.classList.add('hidden');
+    }
+
+    function submitTeacherAuth() {
+      const entered = el.inputTeacherPass.value;
+      if (entered === TEACHER_PASSWORD) {
+        state.teacherAuthenticated = true;
+        closeTeacherAuthModal();
+        enterTeacherMode();
+      } else {
+        el.authErrorMsg.classList.remove('hidden');
+        el.inputTeacherPass.select();
+      }
+    }
+
+    function enterTeacherMode() {
+      state.mode = 'teacher';
+      el.viewStudent.classList.add('hidden');
+      el.viewTeacher.classList.remove('hidden');
+      el.btnToggleMode.textContent = 'Vista Estudiante';
+      renderTeacherDashboard();
+      if (state.activeTab === 'qr') generateQRCode();
+    }
+
+    function exitTeacherMode(lockSession) {
+      if (lockSession) state.teacherAuthenticated = false;
+      state.mode = 'student';
+      el.viewTeacher.classList.add('hidden');
+      el.viewStudent.classList.remove('hidden');
+      el.btnToggleMode.textContent = 'Panel Docente';
+      if (lockSession) showToast('Panel docente bloqueado.');
+    }
+
+    function toggleMode() {
+      if (state.mode === 'student') {
+        if (state.teacherAuthenticated) {
+          enterTeacherMode();
+        } else {
+          openTeacherAuthModal();
+        }
+      } else {
+        exitTeacherMode(false);
+      }
+    }
+
+    // ==================== PANEL DOCENTE ====================
+    function switchTeacherTab(tabName) {
+      state.activeTab = tabName;
+      document.querySelectorAll('.teacher-tab').forEach((btn) => {
+        const isTarget = btn.getAttribute('data-tab') === tabName;
+        btn.classList.toggle('bg-white', isTarget);
+        btn.classList.toggle('text-slate-900', isTarget);
+        btn.classList.toggle('shadow-sm', isTarget);
+        btn.classList.toggle('text-slate-600', !isTarget);
+      });
+
+      document.getElementById('tab-results').classList.toggle('hidden', tabName !== 'results');
+      document.getElementById('tab-qr').classList.toggle('hidden', tabName !== 'qr');
+      document.getElementById('tab-sheets').classList.toggle('hidden', tabName !== 'sheets');
+
+      if (tabName === 'results') renderTeacherDashboard();
+      if (tabName === 'qr') generateQRCode();
+    }
+
+    function getFilteredSubmissions() {
+      const course = el.filterCourse.value;
+      if (course === 'Todos') return state.submissions;
+      return state.submissions.filter((s) => s.curso === course);
+    }
+
+    function renderTeacherDashboard() {
+      const subs = getFilteredSubmissions();
+      const totalSessions = subs.length;
+      el.kpiTotalSessions.textContent = totalSessions;
+
+      const agg = {};
+      SITUATIONS_BANK.forEach((s) => {
+        agg[s.id] = { verde: 0, amarillo: 0, rojo: 0 };
+      });
+
+      let totalV = 0, totalA = 0, totalR = 0;
+      const writtenComments = [];
+
+      subs.forEach((sub) => {
+        sub.respuestas.forEach((r) => {
+          if (agg[r.id] && agg[r.id][r.eleccion] !== undefined) {
+            agg[r.id][r.eleccion] += 1;
+            if (r.eleccion === 'verde') totalV += 1;
+            if (r.eleccion === 'amarillo') totalA += 1;
+            if (r.eleccion === 'rojo') totalR += 1;
+          }
+          if (r.comentario && r.comentario.trim()) {
+            writtenComments.push({
+              nombre: sub.nombre || 'Anónimo',
+              curso: sub.curso || 'General',
+              categoria: r.categoria,
+              id: r.id,
+              eleccion: r.eleccion,
+              comentario: r.comentario.trim()
+            });
+          }
+        });
+      });
+
+      const totalResp = totalV + totalA + totalR;
+      el.kpiPctVerde.textContent = totalResp > 0 ? `${Math.round((totalV / totalResp) * 100)}%` : '0%';
+      el.kpiPctAmarillo.textContent = totalResp > 0 ? `${Math.round((totalA / totalResp) * 100)}%` : '0%';
+      el.kpiPctRojo.textContent = totalResp > 0 ? `${Math.round((totalR / totalResp) * 100)}%` : '0%';
+
+      // Tabla resumen
+      el.resultsTableBody.innerHTML = SITUATIONS_BANK.map((sit) => {
+        const row = agg[sit.id];
+        return `
+          <tr class="hover:bg-slate-50/70">
+            <td class="py-3 px-4">
+              <div class="font-semibold text-slate-800">${sit.id}. ${escapeHtml(sit.categoria)}</div>
+              <div class="text-xs text-slate-500 line-clamp-1">${escapeHtml(sit.texto)}</div>
+            </td>
+            <td class="py-3 px-3 text-center font-semibold text-emerald-700">${row.verde}</td>
+            <td class="py-3 px-3 text-center font-semibold text-amber-700">${row.amarillo}</td>
+            <td class="py-3 px-3 text-center font-semibold text-rose-700">${row.rojo}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Comentarios escritos
+      el.commentsCountBadge.textContent = `${writtenComments.length} comentario${writtenComments.length === 1 ? '' : 's'}`;
+      if (writtenComments.length === 0) {
+        el.commentsList.innerHTML = '<div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs sm:text-sm text-slate-500 text-center">Todavía no hay comentarios escritos para mostrar.</div>';
+      } else {
+        const badgeStyles = {
+          verde: 'bg-emerald-100 text-emerald-800',
+          amarillo: 'bg-amber-100 text-amber-800',
+          rojo: 'bg-rose-100 text-rose-800'
+        };
+        el.commentsList.innerHTML = writtenComments.slice().reverse().map((c) => `
+          <div class="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <div class="text-xs font-semibold text-slate-800">
+                ${escapeHtml(c.nombre)} <span class="font-normal text-slate-500">· ${escapeHtml(c.curso)} · Sit. ${c.id} (${escapeHtml(c.categoria)})</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase ${badgeStyles[c.eleccion] || 'bg-slate-200 text-slate-700'}">${escapeHtml(c.eleccion)}</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">"${escapeHtml(c.comentario)}"</p>
+          </div>
+        `).join('');
+      }
+
+      // Gráfico Chart.js
+      if (totalSessions === 0) {
+        el.chartEmptyState.classList.remove('hidden');
+        el.chartWrapper.classList.add('hidden');
+        if (state.chartInstance) {
+          state.chartInstance.destroy();
+          state.chartInstance = null;
+        }
+        return;
+      }
+
+      el.chartEmptyState.classList.add('hidden');
+      el.chartWrapper.classList.remove('hidden');
+
+      const labels = SITUATIONS_BANK.map((s) => `${s.id}. ${s.categoria}`);
+      const dataVerde = SITUATIONS_BANK.map((s) => agg[s.id].verde);
+      const dataAmarillo = SITUATIONS_BANK.map((s) => agg[s.id].amarillo);
+      const dataRojo = SITUATIONS_BANK.map((s) => agg[s.id].rojo);
+
+      if (state.chartInstance) {
+        state.chartInstance.destroy();
+      }
+
+      const ctx = document.getElementById('results-chart').getContext('2d');
+      state.chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Verde (Bien)', data: dataVerde, backgroundColor: '#6ee7b7', borderRadius: 4 },
+            { label: 'Amarillo (Dudas)', data: dataAmarillo, backgroundColor: '#fcd34d', borderRadius: 4 },
+            { label: 'Rojo (Violencia)', data: dataRojo, backgroundColor: '#fda4af', borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } },
+            y: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 10 } }
+          }
+        }
+      });
+    }
+
+    function loadDemoData() {
+      const demoNames = ['Mili', 'Lucas', 'Valen', 'Santi', 'Anónimo', 'Cami', 'Tomi', 'Luli', 'Mateo', 'Agus'];
+      const courses = ['2.° año', '3.° año', '4.° año'];
+      const healthyIds = new Set([2, 4, 6, 10, 13, 16]);
+      const sampleComments = {
+        verde: ['Me parece súper sano poder hablar así.', 'Así debería ser siempre, con respeto y libertad.', ''],
+        amarillo: ['Depende de cómo lo diga, pero me hace un poco de ruido.', 'Me daría incomodidad, lo hablaría.', ''],
+        rojo: ['Eso es control, no es amor.', 'Yo pondría un límite claro porque invade mi privacidad.', 'Si me pasara eso pediría ayuda o cortaría el vínculo.', '']
+      };
+
+      for (let i = 0; i < 10; i++) {
+        const picked = pickSessionQuestions(QUESTIONS_PER_SESSION);
+        const curso = courses[i % courses.length];
+        state.submissions.push({
+          sessionId: 'DEMO-' + (i + 1) + '-' + Date.now().toString(36).slice(-3).toUpperCase(),
+          timestamp: new Date().toISOString(),
+          nombre: demoNames[i % demoNames.length],
+          curso,
+          respuestas: picked.map((sit) => {
+            const r = Math.random();
+            let eleccion;
+            if (healthyIds.has(sit.id)) {
+              eleccion = r < 0.84 ? 'verde' : (r < 0.96 ? 'amarillo' : 'rojo');
+            } else {
+              eleccion = r < 0.08 ? 'verde' : (r < 0.34 ? 'amarillo' : 'rojo');
+            }
+            const poolC = sampleComments[eleccion];
+            const comentario = Math.random() < 0.35 ? poolC[Math.floor(Math.random() * poolC.length)] : '';
+            return {
+              id: sit.id,
+              categoria: sit.categoria,
+              texto: sit.texto,
+              eleccion,
+              comentario
+            };
+          })
+        });
+      }
+
+      saveSubmissions();
+      renderTeacherDashboard();
+      showToast('Se cargaron 10 participaciones de ejemplo.');
+    }
+
+    function exportCSV() {
+      const subs = getFilteredSubmissions();
+      if (subs.length === 0) {
+        showToast('No hay respuestas para exportar.');
+        return;
+      }
+
+      const header = ['Fecha_Hora', 'ID_Sesion', 'Nombre_Apodo', 'Curso', 'Nro_Situacion', 'Categoria', 'Respuesta', 'Comentario'];
+      const lines = [header.join(',')];
+
+      subs.forEach((sub) => {
+        sub.respuestas.forEach((r) => {
+          const row = [
+            `"${sub.timestamp}"`,
+            `"${sub.sessionId}"`,
+            `"${(sub.nombre || 'Anónimo').replace(/"/g, '""')}"`,
+            `"${(sub.curso || 'General').replace(/"/g, '""')}"`,
+            r.id,
+            `"${r.categoria.replace(/"/g, '""')}"`,
+            `"${r.eleccion}"`,
+            `"${(r.comentario || '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`
+          ];
+          lines.push(row.join(','));
+        });
+      });
+
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `semaforo_esi_respuestas_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Archivo CSV descargado.');
+    }
+
+    // ==================== GENERADOR DE QR ====================
+    function getTargetQrUrl() {
+      let baseUrl = (el.inputQrUrl.value || '').trim();
+      if (!baseUrl) baseUrl = 'https://tu-usuario.github.io/semaforo-esi/';
+      if (el.chkStudentOnly.checked && !baseUrl.includes('modo=estudiante')) {
+        const sep = baseUrl.includes('?') ? '&' : '?';
+        return baseUrl + sep + 'modo=estudiante';
+      }
+      return baseUrl;
+    }
+
+    function generateQRCode() {
+      const targetUrl = getTargetQrUrl();
+      el.qrcodeContainer.innerHTML = '';
+      el.qrUrlPreview.textContent = targetUrl;
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(el.qrcodeContainer, {
+          text: targetUrl,
+          width: 210,
+          height: 210,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
+
+    function downloadQRCode() {
+      const canvas = el.qrcodeContainer.querySelector('canvas');
+      const img = el.qrcodeContainer.querySelector('img');
+      let dataUrl = '';
+      if (canvas) {
+        dataUrl = canvas.toDataURL('image/png');
+      } else if (img && img.src) {
+        dataUrl = img.src;
+      }
+      if (!dataUrl) {
+        showToast('Generá el código QR primero.');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'qr_semaforo_esi.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('Código QR descargado en PNG.');
+    }
+
+    function copyGasCode() {
+      const text = el.gasCodeBlock.textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Código de Apps Script copiado.');
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('Código de Apps Script copiado.');
+      } catch (e) {
+        showToast('No se pudo copiar automáticamente.');
+      }
+      document.body.removeChild(ta);
+    }
+
+    // ==================== INICIALIZACIÓN Y EVENTOS ====================
+    function init() {
+      loadSubmissions();
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('modo') === 'estudiante') {
+        el.modeSwitcher.classList.add('hidden');
+      }
+
+      if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.startsWith('https://')) {
+        el.sheetsConnectionBadge.textContent = 'Conectado a Google Sheets.';
+      }
+
+      // Listeners Estudiante
+      el.btnStartQuiz.addEventListener('click', startQuiz);
+      el.btnPrevQuestion.addEventListener('click', goPrevQuestion);
+      el.btnNextQuestion.addEventListener('click', goNextQuestion);
+      el.inputReflection.addEventListener('input', saveCurrentComment);
+      document.querySelectorAll('.choice-btn').forEach((btn) => {
+        btn.addEventListener('click', () => handleChoice(btn.getAttribute('data-choice')));
+      });
+      el.btnRestartQuiz.addEventListener('click', restartQuiz);
+
+      // Listeners Autenticación y Docente
+      el.btnToggleMode.addEventListener('click', toggleMode);
+      el.btnLockTeacher.addEventListener('click', () => exitTeacherMode(true));
+      el.btnCloseAuth.addEventListener('click', closeTeacherAuthModal);
+      el.btnCancelAuth.addEventListener('click', closeTeacherAuthModal);
+      el.btnSubmitAuth.addEventListener('click', submitTeacherAuth);
+      el.inputTeacherPass.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitTeacherAuth();
+      });
+      el.btnTogglePassVis.addEventListener('click', () => {
+        const isPass = el.inputTeacherPass.type === 'password';
+        el.inputTeacherPass.type = isPass ? 'text' : 'password';
+        el.btnTogglePassVis.textContent = isPass ? 'Ocultar' : 'Ver';
+      });
+
+      document.querySelectorAll('.teacher-tab').forEach((btn) => {
+        btn.addEventListener('click', () => switchTeacherTab(btn.getAttribute('data-tab')));
+      });
+      el.filterCourse.addEventListener('change', renderTeacherDashboard);
+      el.btnLoadDemo.addEventListener('click', loadDemoData);
+      el.btnExportCsv.addEventListener('click', exportCSV);
+      el.btnClearData.addEventListener('click', () => el.modalConfirmClear.classList.remove('hidden'));
+      el.btnCancelClear.addEventListener('click', () => el.modalConfirmClear.classList.add('hidden'));
+      el.btnConfirmClear.addEventListener('click', () => {
+        state.submissions = [];
+        saveSubmissions();
+        el.modalConfirmClear.classList.add('hidden');
+        renderTeacherDashboard();
+        showToast('Datos locales eliminados.');
+      });
+
+      // Listeners QR y Sheets
+      el.btnGenerateQr.addEventListener('click', () => {
+        generateQRCode();
+        showToast('Código QR actualizado.');
+      });
+      el.chkStudentOnly.addEventListener('change', generateQRCode);
+      el.btnDownloadQr.addEventListener('click', downloadQRCode);
+      el.btnCopyGas.addEventListener('click', copyGasCode);
+    }
+
+    init();
+  </script>
+</body>
+</html>
